@@ -10,6 +10,8 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     Handler *handler = new Handler();
+    delete  handler;
+    handler = nullptr;
 
     return a.exec();
 }
