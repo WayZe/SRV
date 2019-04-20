@@ -59,7 +59,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
             }
         }
 
-        out += QString::number(_frames.at(i));
+        out += "F " + QString::number(_frames.at(i));
 
         Print(out);
 
@@ -80,7 +80,7 @@ void Handler::Refresh(double time)
             if(_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod() <= _currentTime)
             {
                 _tasks->at(k)->SetAwake(true);
-                _tasks->at(k)->SetStartTime(_currentTime - (_tasks->at(k)->GetFinishTime() + _tasks->at(k)->GetPeriod() - _currentTime));
+                _tasks->at(k)->SetStartTime(_currentTime - (_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod() - _currentTime));
                 _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetLimit() + _tasks->at(k)->GetStartTime() - _currentTime);
             }
         }
