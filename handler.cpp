@@ -51,15 +51,23 @@ Handler::Handler(QObject *parent) : QObject(parent)
                     Refresh(_tasks->at(j)->GetLength());
                 }
             }
+
+            if (_tasks->at(j)->GetBeforeLimit() < 0)
+            {
+                Print("WARNING " + QString::number(_tasks->at(j)->GetNumber()));
+                int a = 1;
+            }
         }
 
         out += QString::number(_frames.at(i));
 
         Print(out);
 
+        _currentTime += _frames.at(i);
+
         Refresh(_frames.at(i));
 
-        _currentTime += _frames.at(i);
+        //Print();
     }
 }
 
@@ -73,17 +81,12 @@ void Handler::Refresh(double time)
             {
                 _tasks->at(k)->SetAwake(true);
                 _tasks->at(k)->SetStartTime(_currentTime - (_tasks->at(k)->GetFinishTime() + _tasks->at(k)->GetPeriod() - _currentTime));
-                _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetLimit() - (_tasks->at(k)->GetFinishTime() + _tasks->at(k)->GetPeriod() - _currentTime));
+                _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetLimit() + _tasks->at(k)->GetStartTime() - _currentTime);
             }
         }
         else
         {
             _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetBeforeLimit() - time);
-
-            if (_tasks->at(k)->GetBeforeLimit() < 0)
-            {
-                Print("WARNING");
-            }
         }
     }
 }
