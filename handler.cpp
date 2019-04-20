@@ -3,6 +3,7 @@
 #include <task.h>
 #include <QFile>
 #include <QDebug>
+#include <cmath> // для round
 
 Handler::Handler(QObject *parent) : QObject(parent)
 {
@@ -42,6 +43,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
                 if (_frames.at(i) >= _tasks->at(j)->GetLength())
                 {
                     _frames[i] = _frames.at(i) - _tasks->at(j)->GetLength();
+                    _frames[i] = round(_frames[i]*10)/10;  // Округление костыль
                     _tasks->at(j)->SetAwake(false);
                     _currentTime += _tasks->at(j)->GetLength();
                     _tasks->at(j)->SetFinishTime(_currentTime);
@@ -55,7 +57,6 @@ Handler::Handler(QObject *parent) : QObject(parent)
             if (_tasks->at(j)->GetBeforeLimit() < 0)
             {
                 Print("WARNING " + QString::number(_tasks->at(j)->GetNumber()));
-                int a = 1;
             }
         }
 
@@ -63,7 +64,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
         Print(out);
 
-        _currentTime += _frames.at(i);
+        _currentTime = _frame * (i+1);
 
         Refresh(_frames.at(i));
 
@@ -80,7 +81,7 @@ void Handler::Refresh(double time)
             if(_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod() <= _currentTime)
             {
                 _tasks->at(k)->SetAwake(true);
-                _tasks->at(k)->SetStartTime(_currentTime - (_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod() - _currentTime));
+                _tasks->at(k)->SetStartTime(_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod());
                 _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetLimit() + _tasks->at(k)->GetStartTime() - _currentTime);
             }
         }
@@ -93,7 +94,7 @@ void Handler::Refresh(double time)
 
 void Handler::ReadFile()
 {
-    QFile file("D:\\Langs\\Qt\\SRV\\tasks.txt");
+    QFile file("D:\\Langs\\Qt\\SRV\\tasksMy.txt");
 
     if (file.open(QIODevice::ReadOnly))
     {
