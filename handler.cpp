@@ -48,8 +48,10 @@ Handler::Handler(QObject *parent) : QObject(parent)
                     _currentTime += _tasks->at(j)->GetLength();
                     _tasks->at(j)->SetFinishTime(_currentTime);
 
-                    out += QString::number(_tasks->at(j)->GetNumber()) + " ";
-
+                    for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
+                    {
+                        out += QString::number(_tasks->at(j)->GetNumber()) + "\t";
+                    }
                     Refresh(_tasks->at(j)->GetLength());
                 }
             }
@@ -60,7 +62,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
             }
         }
 
-        out += "F " + QString::number(_frames.at(i));
+        //out += "F " + QString::number(_frames.at(i));
 
         Print(out);
 
