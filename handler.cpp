@@ -4,6 +4,7 @@
 #include <QFile>
 #include <QDebug>
 #include <cmath> // для round
+#include <QCoreApplication>
 
 Handler::Handler(QObject *parent) : QObject(parent)
 {
@@ -16,10 +17,10 @@ Handler::Handler(QObject *parent) : QObject(parent)
     _frame = _lines.at(0).toInt();
     _lines.removeAt(0);
 
-    qDebug() << "Hyperperiod: " << _hyperperiod;
-    qDebug() << "Frame: " << _frame;
+    Print("Hyperperiod: " + QString::number(_hyperperiod));
+    Print("Frame: " + QString::number(_frame));
 
-    qDebug() << "Tasks";
+    Print("\nTasks");
     foreach (QString line, _lines)
     {
         _tasks->append(new Task(line.split('\t').at(0).toInt(), line.split('\t').at(1).toInt(), line.split('\t').at(2).toDouble(), line.split('\t').at(3).toInt()));
@@ -29,6 +30,8 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     Print();
 
+    Print("\nFrames");
+
     for (int i = 0; i < _hyperperiod/_frame; i++)
     {
         QString out = "";
@@ -37,7 +40,6 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
         for (int j = 0; j < _tasks->length(); j++)
         {
-            //Print();
             if (_tasks->at(j)->GetAwake())
             {
                 if (_frames.at(i) >= _tasks->at(j)->GetLength())
@@ -69,9 +71,9 @@ Handler::Handler(QObject *parent) : QObject(parent)
         _currentTime = _frame * (i+1);
 
         Refresh(_frames.at(i));
-
-        //Print();
     }
+
+    qDebug() << "Data is added to 'output.txt' file.";
 }
 
 void Handler::Refresh(double time)
@@ -96,14 +98,26 @@ void Handler::Refresh(double time)
 
 void Handler::ReadFile()
 {
-    QFile file("D:\\Langs\\Qt\\SRV\\tasksMy.txt");
+    QFile file(QCoreApplication::applicationDirPath() + "\\tasks.txt");
+    QFile output(QCoreApplication::applicationDirPath() + "\\output.txt");
 
     if (file.open(QIODevice::ReadOnly))
     {
         _allText += file.readAll();
-        qDebug() << _allText;
+        //qDebug() << _allText;
 
         file.close();
+    }
+    else
+    {
+        Print("Please, create input file 'tasks.txt'!");
+        exit(0);
+    }
+
+    if (output.open(QIODevice::WriteOnly))
+    {
+        output.write("");
+        output.close();
     }
 }
 
@@ -123,13 +137,13 @@ void Handler::Sort()
 
 void Handler::Print()
 {
-    QFile file("D:\\Langs\\Qt\\SRV\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + "\\output.txt");
 
     if (file.open(QIODevice::Append))
     {;
         foreach (Task *task, *_tasks)
         {
-            qDebug() << task->GetNumber() << task->GetPeriod() << task->GetLength() << task->GetLimit() << task->GetBeforeLimit() << task->GetAwake();
+            //qDebug() << task->GetNumber() << task->GetPeriod() << task->GetLength() << task->GetLimit() << task->GetBeforeLimit() << task->GetAwake();
 
             QString out = QString::number(task->GetNumber()) + " " + QString::number(task->GetPeriod()) + " " +
                     QString::number(task->GetLength()) + " " + QString::number(task->GetLimit()) + " " +
@@ -139,14 +153,14 @@ void Handler::Print()
         }
         file.close();
     }
-    qDebug() << "";
+    //qDebug() << "";
 }
 
 void Handler::Print(QString out)
 {
-    QFile file("D:\\Langs\\Qt\\SRV\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + "\\output.txt");
 
-    qDebug() << out;
+    //qDebug() << out;
 
     if (file.open(QIODevice::Append))
     {
