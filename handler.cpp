@@ -98,8 +98,8 @@ void Handler::Refresh(double time)
 
 void Handler::ReadFile()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\tasks.txt");
-    QFile output(QCoreApplication::applicationDirPath() + "\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + "/tasks.txt");
+    QFile output(QCoreApplication::applicationDirPath() + "/output.txt");
 
     if (file.open(QIODevice::ReadOnly))
     {
@@ -129,7 +129,7 @@ void Handler::Sort()
             if (_tasks->at(j)->GetBeforeLimit() > _tasks->at(j + 1)->GetBeforeLimit())
             {
                 // меняем элементы местами
-                _tasks->swapItemsAt(j, j+1);
+                _tasks->swap(j, j+1);
             }
         }
     }
@@ -137,7 +137,7 @@ void Handler::Sort()
 
 void Handler::Print()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + "/output.txt");
 
     if (file.open(QIODevice::Append))
     {;
@@ -158,7 +158,7 @@ void Handler::Print()
 
 void Handler::Print(QString out)
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + "/output.txt");
 
     //qDebug() << out;
 
