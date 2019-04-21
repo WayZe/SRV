@@ -98,8 +98,8 @@ void Handler::Refresh(double time)
 
 void Handler::ReadFile()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\tasks.txt");
-    QFile output(QCoreApplication::applicationDirPath() + "\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + inputName);
+    QFile output(QCoreApplication::applicationDirPath() + outputName);
 
     if (file.open(QIODevice::ReadOnly))
     {
@@ -137,7 +137,7 @@ void Handler::Sort()
 
 void Handler::Print()
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + outputName);
 
     if (file.open(QIODevice::Append))
     {;
@@ -158,7 +158,7 @@ void Handler::Print()
 
 void Handler::Print(QString out)
 {
-    QFile file(QCoreApplication::applicationDirPath() + "\\output.txt");
+    QFile file(QCoreApplication::applicationDirPath() + outputName);
 
     //qDebug() << out;
 
