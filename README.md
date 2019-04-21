@@ -1,4 +1,4 @@
-#### 1. [Скачайте программу](https://drive.google.com/drive/folders/1lglvSePhJKf3GUBGx8jM3Lrl16jlVHfw?usp=sharing)
+#### 1. [Скачайте папку Release](https://drive.google.com/drive/folders/1lglvSePhJKf3GUBGx8jM3Lrl16jlVHfw?usp=sharing)
 
 #### 2. Добавьте файл tasks.txt рядом с файлом .exe программы.
 
