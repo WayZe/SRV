@@ -64,7 +64,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
             }
         }
 
-        //out += "F " + QString::number(_frames.at(i));
+        out += "F " + QString::number(_frames.at(i));
 
         Print(out);
 
