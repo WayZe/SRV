@@ -3,14 +3,14 @@
 
 #include <QObject>
 #include <QList>
-#include <task.h>
+#include <periodictask.h>
 #include <QString>
 
 class Handler : public QObject
 {
     Q_OBJECT
 private:
-    QList<Task *> *_tasks = new QList<Task *>();
+    QList<PeriodicTask *> *_periodicTasks = new QList<PeriodicTask *>();
     QString _allText = "";
     QStringList _lines;
     QStringList _lineParts;

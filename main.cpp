@@ -1,6 +1,6 @@
 #include <QCoreApplication>
 #include <QList>
-#include <task.h>
+#include <periodictask.h>
 #include <QFile>
 #include <QDebug>
 #include "handler.h"

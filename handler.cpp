@@ -1,6 +1,6 @@
 #include "handler.h"
 #include <QList>
-#include <task.h>
+#include <periodictask.h>
 #include <QFile>
 #include <QDebug>
 #include <cmath> // для round
@@ -26,12 +26,12 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     foreach (QString line, _lines)
     {
-        _tasks->append(new Task(line.split('\t').at(0).toInt(), line.split('\t').at(1).toInt(), line.split('\t').at(2).toDouble(), line.split('\t').at(3).toInt()));
+        _periodicTasks->append(new PeriodicTask(line.split('\t').at(0).toInt(), line.split('\t').at(1).toInt(), line.split('\t').at(2).toDouble(), line.split('\t').at(3).toInt()));
         out += line.split('\t').at(2) + " ";
     }
     out.replace(out.lastIndexOf(' '), 1, ")");
 
-    Print(QString::number(_tasks->length()) + "\n");
+    Print(QString::number(_periodicTasks->length()) + "\n");
 
     FillFrames();
 
@@ -43,29 +43,29 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
         Sort();
 
-        for (int j = 0; j < _tasks->length(); j++)
+        for (int j = 0; j < _periodicTasks->length(); j++)
         {
-            if (_tasks->at(j)->GetAwake())
+            if (_periodicTasks->at(j)->GetAwake())
             {
-                if (_frames.at(i) >= _tasks->at(j)->GetLength())
+                if (_frames.at(i) >= _periodicTasks->at(j)->GetLength())
                 {
-                    _frames[i] = _frames.at(i) - _tasks->at(j)->GetLength();
+                    _frames[i] = _frames.at(i) - _periodicTasks->at(j)->GetLength();
                     _frames[i] = round(_frames[i]*10)/10;  // Округление костыль
-                    _tasks->at(j)->SetAwake(false);
-                    _currentTime += _tasks->at(j)->GetLength();
-                    _tasks->at(j)->SetFinishTime(_currentTime);
+                    _periodicTasks->at(j)->SetAwake(false);
+                    _currentTime += _periodicTasks->at(j)->GetLength();
+                    _periodicTasks->at(j)->SetFinishTime(_currentTime);
 
 //                    for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
 //                    {
-                        out += QString::number(_tasks->at(j)->GetNumber()) + " ";
+                        out += QString::number(_periodicTasks->at(j)->GetNumber()) + " ";
 //                    }
-                    Refresh(_tasks->at(j)->GetLength());
+                    Refresh(_periodicTasks->at(j)->GetLength());
                 }
             }
 
-            if (_tasks->at(j)->GetBeforeLimit() < 0)
+            if (_periodicTasks->at(j)->GetBeforeLimit() < 0)
             {
-                Print("WARNING " + QString::number(_tasks->at(j)->GetNumber()));
+                Print("WARNING " + QString::number(_periodicTasks->at(j)->GetNumber()));
             }
         }
 
@@ -88,20 +88,20 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
 void Handler::Refresh(double time)
 {
-    for (int k = 0; k < _tasks->length(); k++)
+    for (int k = 0; k < _periodicTasks->length(); k++)
     {
-        if (!_tasks->at(k)->GetAwake())
+        if (!_periodicTasks->at(k)->GetAwake())
         {
-            if(_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod() <= _currentTime)
+            if(_periodicTasks->at(k)->GetStartTime() + _periodicTasks->at(k)->GetPeriod() <= _currentTime)
             {
-                _tasks->at(k)->SetAwake(true);
-                _tasks->at(k)->SetStartTime(_tasks->at(k)->GetStartTime() + _tasks->at(k)->GetPeriod());
-                _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetLimit() + _tasks->at(k)->GetStartTime() - _currentTime);
+                _periodicTasks->at(k)->SetAwake(true);
+                _periodicTasks->at(k)->SetStartTime(_periodicTasks->at(k)->GetStartTime() + _periodicTasks->at(k)->GetPeriod());
+                _periodicTasks->at(k)->SetBeforeLimit(_periodicTasks->at(k)->GetLimit() + _periodicTasks->at(k)->GetStartTime() - _currentTime);
             }
         }
         else
         {
-            _tasks->at(k)->SetBeforeLimit(_tasks->at(k)->GetBeforeLimit() - time);
+            _periodicTasks->at(k)->SetBeforeLimit(_periodicTasks->at(k)->GetBeforeLimit() - time);
         }
     }
 }
@@ -134,13 +134,13 @@ void Handler::ReadFile()
 void Handler::Sort()
 {
     // Сортировка массива пузырьком
-    for (int i = 0; i < _tasks->length() - 1; i++) {
-        for (int j = 0; j < _tasks->length() - i - 1; j++) {
-            if (_tasks->at(j)->GetBeforeLimit() > _tasks->at(j + 1)->GetBeforeLimit())
+    for (int i = 0; i < _periodicTasks->length() - 1; i++) {
+        for (int j = 0; j < _periodicTasks->length() - i - 1; j++) {
+            if (_periodicTasks->at(j)->GetBeforeLimit() > _periodicTasks->at(j + 1)->GetBeforeLimit())
             {
                 // меняем элементы местами
 #ifdef _WIN32
-                _tasks->swapItemsAt(j, j+1);
+                _periodicTasks->swapItemsAt(j, j+1);
 #else
                 _tasks->swap(j, j+1);
 #endif
@@ -155,7 +155,7 @@ void Handler::Print()
 
     if (file.open(QIODevice::Append))
     {;
-        foreach (Task *task, *_tasks)
+        foreach (PeriodicTask *task, *_periodicTasks)
         {
             QString out = QString::number(task->GetNumber()) + " " + QString::number(task->GetPeriod()) + " " +
                     QString::number(task->GetLength()) + " " + QString::number(task->GetLimit()) + " " +

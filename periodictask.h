@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-class Task : public QObject
+class PeriodicTask : public QObject
 {
     Q_OBJECT
 private:
@@ -17,7 +17,7 @@ private:
     bool _isAwake = true;
 
 public:
-    explicit Task(int number, int period, double length, int limit);
+    explicit PeriodicTask(int number, int period, double length, int limit);
     int GetNumber();
     int GetPeriod();
     double GetLength();
