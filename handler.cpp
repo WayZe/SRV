@@ -129,7 +129,11 @@ void Handler::Sort()
             if (_tasks->at(j)->GetBeforeLimit() > _tasks->at(j + 1)->GetBeforeLimit())
             {
                 // меняем элементы местами
+#ifdef _WIN32
+                _tasks->swapItemsAt(j, j+1);
+#else
                 _tasks->swap(j, j+1);
+#endif
             }
         }
     }
@@ -147,7 +151,7 @@ void Handler::Print()
 
             QString out = QString::number(task->GetNumber()) + " " + QString::number(task->GetPeriod()) + " " +
                     QString::number(task->GetLength()) + " " + QString::number(task->GetLimit()) + " " +
-                    QString::number(task->GetBeforeLimit());
+                    QString::number(task->GetBeforeLimit()) + "\n";
 
             file.write(out.toLocal8Bit());
         }
