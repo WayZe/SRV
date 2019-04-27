@@ -18,7 +18,7 @@ private:
     QStringList _lines;
     QStringList _lineParts;
     int _hyperperiod = -1;
-    int _frame = -1;
+    int _frameLength = -1;
     QList<double> _frames;
     double _currentTime = 0;
     const QString inputName = "/tasks.txt";

@@ -19,11 +19,11 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     _hyperperiod = _lines.at(0).toInt();
     _lines.removeAt(0);
-    _frame = _lines.at(0).toInt();
+    _frameLength = _lines.at(0).toInt();
     _lines.removeAt(0);
 
     Print(QString::number(_hyperperiod) + "\n");
-    Print(QString::number(_frame) + "\n");
+    Print(QString::number(_frameLength) + "\n");
 
     for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
     {
@@ -48,7 +48,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     Print(out + "\n");
 
-    for (int i = 0; i < _hyperperiod/_frame; i++)
+    for (int i = 0; i < _hyperperiod/_frameLength; i++)
     {
         out = "(";
 
@@ -82,14 +82,14 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
         out.replace(out.lastIndexOf(' '), 1, ")");
 
-        if (i != _hyperperiod/_frame - 1)
+        if (i != _hyperperiod/_frameLength - 1)
         {
             out += "\n";
         }
 
         Print(out);
 
-        _currentTime = _frame * (i+1);
+        _currentTime = _frameLength * (i+1);
 
         Refresh(_frames.at(i));
     }
@@ -191,9 +191,9 @@ void Handler::Print(QString out)
 
 void Handler::FillFrames()
 {
-    for (int i = 0; i < _hyperperiod/_frame; i++)
+    for (int i = 0; i < _hyperperiod/_frameLength; i++)
     {
-        _frames.append(_frame);
+        _frames.append(_frameLength);
     }
 }
 
