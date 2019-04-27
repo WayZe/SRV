@@ -13,6 +13,7 @@ private:
 
 public:
     AperiodicTask(double averageTime, double length);
+    double GetAverageTime();
 };
 
 #endif // APERIODICTASK_H

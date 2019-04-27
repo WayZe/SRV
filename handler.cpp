@@ -13,13 +13,16 @@ Handler::Handler(QObject *parent) : QObject(parent)
 {
     ReadFile();
 
-    GeneratePoisson();
-
     _hyperperiod = GetNextParam();
 
     _frameLength = GetNextParam();
 
     FillAperiodicTasksList();
+
+    for (int i = 0; i < _aperiodicTasks->length(); i++)
+    {
+        GeneratePoisson(_aperiodicTasks->at(i)->GetAverageTime());
+    }
 
     FillPeriodicTasksList();
 
@@ -217,6 +220,17 @@ void Handler::FillFrames()
     }
 }
 
+void Handler::GeneratePoisson(double lyambda)
+{
+    qDebug() << lyambda;
+    QString out = "";
+    for (int k = 0; k < _aperiodicTasks->length(); k++)
+    {
+        out += QString::number(round((pow(lyambda, k) * pow(M_E, -lyambda)) / CalcFactorial(k) * 100) / 100) + " ";
+    }
+    qDebug() << out;
+}
+
 int Handler::CalcFactorial(int n)
 {
     int k = 1;
@@ -225,14 +239,4 @@ int Handler::CalcFactorial(int n)
         k *= ( n - i);
     }
     return k;
-}
-
-
-void Handler::GeneratePoisson()
-{
-    int lyambda = 5;
-    for (int k = 0; k < 5; k++)
-    {
-        qDebug() << (pow(lyambda, k) * pow(M_E, -lyambda)) / CalcFactorial(k);
-    }
 }

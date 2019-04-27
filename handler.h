@@ -31,7 +31,7 @@ private:
     void Refresh(double time);
     void Print(QString out);
     int CalcFactorial(int n);
-    void GeneratePoisson();
+    void GeneratePoisson(double lyambda);
     void DistributePeriodicTasks();
     void FillAperiodicTasksList();
     void FillPeriodicTasksList();
