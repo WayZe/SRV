@@ -34,7 +34,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     for (int i = 0; i < _hyperperiod/_frame; i++)
     {
-        QString out = "";
+        QString out = "(";
 
         Sort();
 
@@ -50,10 +50,10 @@ Handler::Handler(QObject *parent) : QObject(parent)
                     _currentTime += _tasks->at(j)->GetLength();
                     _tasks->at(j)->SetFinishTime(_currentTime);
 
-                    for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
-                    {
-                        out += QString::number(_tasks->at(j)->GetNumber()) + "\t";
-                    }
+//                    for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
+//                    {
+                        out += QString::number(_tasks->at(j)->GetNumber()) + " ";
+//                    }
                     Refresh(_tasks->at(j)->GetLength());
                 }
             }
@@ -64,7 +64,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
             }
         }
 
-        out += "F " + QString::number(_frames.at(i));
+        out.replace(out.lastIndexOf(' '), 1, ")");
 
         Print(out);
 
@@ -147,7 +147,7 @@ void Handler::Print()
 
             QString out = QString::number(task->GetNumber()) + " " + QString::number(task->GetPeriod()) + " " +
                     QString::number(task->GetLength()) + " " + QString::number(task->GetLimit()) + " " +
-                    QString::number(task->GetBeforeLimit()) + " " + QString::number(task->GetAwake()) + "\n";
+                    QString::number(task->GetBeforeLimit());
 
             file.write(out.toLocal8Bit());
         }
