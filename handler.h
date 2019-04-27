@@ -7,6 +7,7 @@
 
 #include <periodictask.h>
 #include <aperiodictask.h>
+#include <element.h>
 
 class Handler : public QObject
 {
@@ -14,20 +15,20 @@ class Handler : public QObject
 private:
     QList<PeriodicTask *> *_periodicTasks = new QList<PeriodicTask *>();
     QList<AperiodicTask *> *_aperiodicTasks = new QList<AperiodicTask *>();
+    QList<QList<Element *> *> *_elements = new QList<QList<Element *> *>();
     QStringList _lines;
     QStringList _lineParts;
     int _hyperperiod = -1;
     int _frameLength = -1;
-    QList<double> _frames;
     double _currentTime = 0;
     const QString inputName = "/tasks.txt";
     const QString outputName = "/output.txt";
+    const double _E = 0.0000001;
 
 private:
     void ReadFile();
     void Sort();
     void Print();
-    void FillFrames();
     void Refresh(double time);
     void Print(QString out);
     void DistributePeriodicTasks();

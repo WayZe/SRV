@@ -26,26 +26,26 @@ Handler::Handler(QObject *parent) : QObject(parent)
     }
 
     int exit = true;
-    while (exit)
-    {
-        exit = false;
-        for (int i = 0; i < _aperiodicTasks->length(); i++)
-        {
-            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
-            {
-                _aperiodicTasks->at(i)->IncreaseStartTime(
-                            GeneratePoisson(
-                                _aperiodicTasks->at(i)->GetAverageTime()));
-            }
-            qDebug() << _aperiodicTasks->at(i)->GetStartTime();
-            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
-            {
-                exit = true;
-            }
-        }
-    }
+//    while (exit)
+//    {
+//        exit = false;
+//        for (int i = 0; i < _aperiodicTasks->length(); i++)
+//        {
+//            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
+//            {
+//                _aperiodicTasks->at(i)->IncreaseStartTime(
+//                            GeneratePoisson(
+//                                _aperiodicTasks->at(i)->GetAverageTime()));
+//            }
+//            //qDebug() << _aperiodicTasks->at(i)->GetStartTime();
+//            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
+//            {
+//                exit = true;
+//            }
+//        }
+//    }
 
-    qDebug() << "";
+    //qDebug() << "";
     for (int i = 0; i < _aperiodicTasks->length(); i++)
     {
         qDebug() << _aperiodicTasks->at(i)->GetStartTime();
@@ -53,7 +53,6 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     FillPeriodicTasksList();
 
-    FillFrames();
 
     DistributePeriodicTasks();
 
@@ -71,39 +70,115 @@ int Handler::GetNextParam()
 
 void Handler::DistributePeriodicTasks()
 {
+    double step = 0.1;
+    double emptyTime = 0;
     QString out = "";
+
     for (int i = 0; i < _hyperperiod/_frameLength; i++)
     {
         out = "(";
+        _elements->append(new QList<Element *>());
 
-        Sort();
-
-        for (int j = 0; j < _periodicTasks->length(); j++)
+        for (int k = 0; k < _frameLength/step; k++)
         {
-            if (_periodicTasks->at(j)->GetAwake())
-            {
-                if (_frames.at(i) >= _periodicTasks->at(j)->GetLength())
-                {
-                    _frames[i] = _frames.at(i) -
-                            _periodicTasks->at(j)->GetLength();
-                    _frames[i] = round(_frames[i] * 10) / 10;
-                    _periodicTasks->at(j)->SetAwake(false);
-                    _currentTime += _periodicTasks->at(j)->GetLength();
-                    _periodicTasks->at(j)->SetFinishTime(_currentTime);
+            Refresh(step);
+            Sort();
 
-                    //for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
-                    //{
-                    out += QString::number(_periodicTasks->at(j)->GetNumber())
-                            + " ";
-                    //}
-                    Refresh(_periodicTasks->at(j)->GetLength());
+            bool flag = true;
+
+            for (int l = 0; l < _periodicTasks->length(); l++)
+            {
+                if (_periodicTasks->at(l)->GetAwake())
+                {
+                    flag = false;
                 }
             }
 
-            if (_periodicTasks->at(j)->GetBeforeLimit() < 0)
+            if (flag)
             {
-                Print("WARNING " +
-                      QString::number(_periodicTasks->at(j)->GetNumber()));
+                emptyTime += step;
+                _currentTime += step;
+                continue;
+            }
+            else
+            {
+                bool isWork = false;
+
+                for (int l = 0; l < _periodicTasks->length(); l++)
+                {
+                    if (_periodicTasks->at(l)->GetInWork())
+                    {
+                        isWork = true;
+                        break;
+                    }
+                }
+
+                if (!isWork)
+                {
+                    for (int l = 0; l < _periodicTasks->length(); l++)
+                    {
+                        if (_periodicTasks->at(l)->GetAwake())
+                        {
+                            if (_frameLength - (k + 1) * step > _periodicTasks->at(l)->GetLength())
+                            {
+                                if (emptyTime > 0)
+                                {
+                                    _elements->at(i)->append(new Element(emptyTime));
+                                    emptyTime = 0;
+                                }
+
+                                _periodicTasks->at(l)->SetInWork(true);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            for (int j = 0; j < _periodicTasks->length(); j++)
+            {
+                if (_periodicTasks->at(j)->GetInWork())
+                {
+//                    if (_frames.at(i) >= _periodicTasks->at(j)->GetLength())
+//                    {
+//                        _frames[i] = _frames.at(i) -
+//                                _periodicTasks->at(j)->GetLength();
+//                        _frames[i] = round(_frames[i] * 10) / 10;
+//                        _periodicTasks->at(j)->SetAwake(false);
+//                        _currentTime += _periodicTasks->at(j)->GetLength();
+//                        _periodicTasks->at(j)->SetFinishTime(_currentTime);
+
+//                        //for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
+//                        //{
+//                        out += QString::number(_periodicTasks->at(j)->GetNumber())
+//                                + " ";
+//                        //}
+//                        Refresh(_periodicTasks->at(j)->GetLength());
+//                    }
+
+                    _currentTime += step;
+                    if (_E >_currentTime - _periodicTasks->at(j)->GetStartTime() + _periodicTasks->at(j)->GetPeriod())
+                    {
+                        _periodicTasks->at(j)->SetAwake(false);
+                        _periodicTasks->at(j)->SetInWork(false);
+                        _periodicTasks->at(j)->SetFinishTime(_currentTime);
+                        _elements->at(i)->append(new Element(_periodicTasks->at(j)->GetNumber()));
+                    }
+                }
+
+                if (_periodicTasks->at(j)->GetBeforeLimit() < 0)
+                {
+                    Print("WARNING " +
+                          QString::number(_periodicTasks->at(j)->GetNumber()));
+                }
+            }
+
+            if (emptyTime > 0)
+            {
+                if (k - _frameLength/step + 1 < _E)
+                {
+                    _elements->at(i)->append(new Element(emptyTime));
+                }
             }
         }
 
@@ -115,10 +190,6 @@ void Handler::DistributePeriodicTasks()
         }
 
         Print(out);
-
-        _currentTime = _frameLength * (i+1);
-
-        Refresh(_frames.at(i));
     }
 }
 
@@ -257,14 +328,6 @@ void Handler::Print(QString out)
     {
         file.write(out.toLocal8Bit());
         file.close();
-    }
-}
-
-void Handler::FillFrames()
-{
-    for (int i = 0; i < _hyperperiod/_frameLength; i++)
-    {
-        _frames.append(_frameLength);
     }
 }
 

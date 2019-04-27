@@ -68,3 +68,13 @@ void PeriodicTask::SetStartTime(double startTime)
 {
     _startTime = startTime;
 }
+
+void PeriodicTask::SetInWork(bool inWork)
+{
+    _inWork = inWork;
+}
+
+bool PeriodicTask::GetInWork()
+{
+    return _inWork;
+}

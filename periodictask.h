@@ -15,6 +15,8 @@ private:
     double _finishTime;
     double _beforeLimit;
     bool _isAwake = true;
+    bool _inWork;
+    double _beforeFinal;
 
 public:
     explicit PeriodicTask(int number, int period, double length, int limit);
@@ -30,6 +32,8 @@ public:
     void SetFinishTime(double finishTime);
     double GetStartTime();
     void SetStartTime(double startTime);
+    void SetInWork(bool inWork);
+    bool GetInWork();
 
 signals:
 
