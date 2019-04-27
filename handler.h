@@ -14,7 +14,6 @@ class Handler : public QObject
 private:
     QList<PeriodicTask *> *_periodicTasks = new QList<PeriodicTask *>();
     QList<AperiodicTask *> *_aperiodicTasks = new QList<AperiodicTask *>();
-    QString _allText = "";
     QStringList _lines;
     QStringList _lineParts;
     int _hyperperiod = -1;
@@ -33,6 +32,10 @@ private:
     void Print(QString out);
     int CalcFactorial(int n);
     void GeneratePoisson();
+    void DistributePeriodicTasks();
+    void FillAperiodicTasksList();
+    void FillPeriodicTasksList();
+    int GetNextParam();
 
 public:
     explicit Handler(QObject *parent = nullptr);

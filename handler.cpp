@@ -15,39 +15,33 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     GeneratePoisson();
 
-    _lines = _allText.split('\n');
+    _hyperperiod = GetNextParam();
 
-    _hyperperiod = _lines.at(0).toInt();
-    _lines.removeAt(0);
-    _frameLength = _lines.at(0).toInt();
-    _lines.removeAt(0);
+    _frameLength = GetNextParam();
 
-    Print(QString::number(_hyperperiod) + "\n");
-    Print(QString::number(_frameLength) + "\n");
+    FillAperiodicTasksList();
 
-    for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
-    {
-        _aperiodicTasks->append(new AperiodicTask(_lines.at(0).split('\t').at(i).toDouble(), _lines.at(1).split('\t').at(i).toDouble()));
-    }
-
-    _lines.removeAt(0);
-    _lines.removeAt(0);
-
-    QString out = "(";
-
-    foreach (QString line, _lines)
-    {
-        _periodicTasks->append(new PeriodicTask(line.split('\t').at(0).toInt(), line.split('\t').at(1).toInt(), line.split('\t').at(2).toDouble(), line.split('\t').at(3).toInt()));
-        out += line.split('\t').at(2) + " ";
-    }
-    out.replace(out.lastIndexOf(' '), 1, ")");
-
-    Print(QString::number(_periodicTasks->length()) + "\n");
+    FillPeriodicTasksList();
 
     FillFrames();
 
-    Print(out + "\n");
+    DistributePeriodicTasks();
 
+    qDebug() << "Data is added to 'output.txt' file.";
+}
+
+int Handler::GetNextParam()
+{
+    int param = _lines.at(0).toInt();
+    _lines.removeAt(0);
+    Print(QString::number(param) + "\n");
+
+    return param;
+}
+
+void Handler::DistributePeriodicTasks()
+{
+    QString out = "";
     for (int i = 0; i < _hyperperiod/_frameLength; i++)
     {
         out = "(";
@@ -61,7 +55,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
                 if (_frames.at(i) >= _periodicTasks->at(j)->GetLength())
                 {
                     _frames[i] = _frames.at(i) - _periodicTasks->at(j)->GetLength();
-                    _frames[i] = round(_frames[i]*10)/10;  // Округление костыль
+                    _frames[i] = round(_frames[i] * 10) / 10;
                     _periodicTasks->at(j)->SetAwake(false);
                     _currentTime += _periodicTasks->at(j)->GetLength();
                     _periodicTasks->at(j)->SetFinishTime(_currentTime);
@@ -93,8 +87,33 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
         Refresh(_frames.at(i));
     }
+}
 
-    qDebug() << "Data is added to 'output.txt' file.";
+void Handler::FillAperiodicTasksList()
+{
+    for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
+    {
+        _aperiodicTasks->append(new AperiodicTask(_lines.at(0).split('\t').at(i).toDouble(), _lines.at(1).split('\t').at(i).toDouble()));
+    }
+
+    _lines.removeAt(0);
+    _lines.removeAt(0);
+}
+
+void Handler::FillPeriodicTasksList()
+{
+    QString out = "(";
+
+    foreach (QString line, _lines)
+    {
+        _periodicTasks->append(new PeriodicTask(line.split('\t').at(0).toInt(), line.split('\t').at(1).toInt(), line.split('\t').at(2).toDouble(), line.split('\t').at(3).toInt()));
+        out += line.split('\t').at(2) + " ";
+    }
+    out.replace(out.lastIndexOf(' '), 1, ")");
+
+    Print(QString::number(_periodicTasks->length()) + "\n");
+
+    Print(out + "\n");
 }
 
 void Handler::Refresh(double time)
@@ -121,12 +140,11 @@ void Handler::ReadFile()
 {
     QFile file(QCoreApplication::applicationDirPath() + inputName);
     QFile output(QCoreApplication::applicationDirPath() + outputName);
+    QString allText = "";
 
     if (file.open(QIODevice::ReadOnly))
     {
-        _allText += file.readAll();
-        //qDebug() << _allText;
-
+        allText += file.readAll();
         file.close();
     }
     else
@@ -140,6 +158,8 @@ void Handler::ReadFile()
         output.write("");
         output.close();
     }
+
+    _lines = allText.split('\n');
 }
 
 void Handler::Sort()
