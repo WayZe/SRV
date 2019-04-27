@@ -10,6 +10,8 @@ Handler::Handler(QObject *parent) : QObject(parent)
 {
     ReadFile();
 
+    GeneratePoisson();
+
     _lines = _allText.split('\n');
 
     _hyperperiod = _lines.at(0).toInt();
@@ -17,24 +19,27 @@ Handler::Handler(QObject *parent) : QObject(parent)
     _frame = _lines.at(0).toInt();
     _lines.removeAt(0);
 
-    Print("Hyperperiod: " + QString::number(_hyperperiod));
-    Print("Frame: " + QString::number(_frame));
+    Print(QString::number(_hyperperiod) + "\n");
+    Print(QString::number(_frame) + "\n");
 
-    Print("\nTasks");
+    QString out = "(";
+
     foreach (QString line, _lines)
     {
         _tasks->append(new Task(line.split('\t').at(0).toInt(), line.split('\t').at(1).toInt(), line.split('\t').at(2).toDouble(), line.split('\t').at(3).toInt()));
+        out += line.split('\t').at(2) + " ";
     }
+    out.replace(out.lastIndexOf(' '), 1, ")");
+
+    Print(QString::number(_tasks->length()) + "\n");
 
     FillFrames();
 
-    Print();
-
-    Print("\nFrames");
+    Print(out + "\n");
 
     for (int i = 0; i < _hyperperiod/_frame; i++)
     {
-        QString out = "(";
+        out = "(";
 
         Sort();
 
@@ -65,6 +70,11 @@ Handler::Handler(QObject *parent) : QObject(parent)
         }
 
         out.replace(out.lastIndexOf(' '), 1, ")");
+
+        if (i != _hyperperiod/_frame - 1)
+        {
+            out += "\n";
+        }
 
         Print(out);
 
@@ -147,8 +157,6 @@ void Handler::Print()
     {;
         foreach (Task *task, *_tasks)
         {
-            //qDebug() << task->GetNumber() << task->GetPeriod() << task->GetLength() << task->GetLimit() << task->GetBeforeLimit() << task->GetAwake();
-
             QString out = QString::number(task->GetNumber()) + " " + QString::number(task->GetPeriod()) + " " +
                     QString::number(task->GetLength()) + " " + QString::number(task->GetLimit()) + " " +
                     QString::number(task->GetBeforeLimit()) + "\n";
@@ -157,18 +165,15 @@ void Handler::Print()
         }
         file.close();
     }
-    //qDebug() << "";
 }
 
 void Handler::Print(QString out)
 {
     QFile file(QCoreApplication::applicationDirPath() + outputName);
 
-    //qDebug() << out;
-
     if (file.open(QIODevice::Append))
     {
-        file.write(out.toLocal8Bit() + "\n");
+        file.write(out.toLocal8Bit());
         file.close();
     }
 }
@@ -178,5 +183,25 @@ void Handler::FillFrames()
     for (int i = 0; i < _hyperperiod/_frame; i++)
     {
         _frames.append(_frame);
+    }
+}
+
+int Handler::CalcFactorial(int n)
+{
+    int k = 1;
+    for (int i = 0; i < n; i++)
+    {
+        k *= ( n - i);
+    }
+    return k;
+}
+
+
+void Handler::GeneratePoisson()
+{
+    int lyambda = 5;
+    for (int k = 0; k < 5; k++)
+    {
+        qDebug() << (pow(lyambda, k) * pow(M_E, -lyambda)) / CalcFactorial(k);
     }
 }

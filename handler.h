@@ -28,6 +28,8 @@ private:
     void FillFrames();
     void Refresh(double time);
     void Print(QString out);
+    int CalcFactorial(int n);
+    void GeneratePoisson();
 
 public:
     explicit Handler(QObject *parent = nullptr);
