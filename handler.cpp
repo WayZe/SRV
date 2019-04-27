@@ -129,7 +129,7 @@ void Handler::Sort()
             if (_tasks->at(j)->GetBeforeLimit() > _tasks->at(j + 1)->GetBeforeLimit())
             {
                 // меняем элементы местами
-                _tasks->swapItemsAt(j, j+1);
+                _tasks->swap(j, j+1);
             }
         }
     }

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QList>
 #include <task.h>
+#include <QString>
 
 class Handler : public QObject
 {
@@ -17,8 +18,8 @@ private:
     int _frame = -1;
     QList<double> _frames;
     double _currentTime = 0;
-    const QString inputName = "\\tasks.txt";
-    const QString outputName = "\\output.txt";
+    const QString inputName = "/tasks.txt";
+    const QString outputName = "/output.txt";
 
 private:
     void ReadFile();
