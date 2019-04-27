@@ -1,10 +1,13 @@
 #include "handler.h"
+
 #include <QList>
-#include <periodictask.h>
 #include <QFile>
 #include <QDebug>
 #include <cmath> // для round
 #include <QCoreApplication>
+
+#include <periodictask.h>
+#include <aperiodictask.h>
 
 Handler::Handler(QObject *parent) : QObject(parent)
 {
@@ -21,6 +24,14 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     Print(QString::number(_hyperperiod) + "\n");
     Print(QString::number(_frame) + "\n");
+
+    for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
+    {
+        _aperiodicTasks->append(new AperiodicTask(_lines.at(0).split('\t').at(i).toDouble(), _lines.at(1).split('\t').at(i).toDouble()));
+    }
+
+    _lines.removeAt(0);
+    _lines.removeAt(0);
 
     QString out = "(";
 

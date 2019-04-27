@@ -16,7 +16,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += main.cpp \
            handler.cpp \
-    periodictask.cpp
+    periodictask.cpp \
+    aperiodictask.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -25,4 +26,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
            handler.h \
-    periodictask.h
+    periodictask.h \
+    aperiodictask.h
