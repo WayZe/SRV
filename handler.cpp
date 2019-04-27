@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <cmath> // для round
 #include <QCoreApplication>
+#include <ctime>
 
 #include <periodictask.h>
 #include <aperiodictask.h>
@@ -22,6 +23,32 @@ Handler::Handler(QObject *parent) : QObject(parent)
     for (int i = 0; i < _aperiodicTasks->length(); i++)
     {
         GeneratePoisson(_aperiodicTasks->at(i)->GetAverageTime());
+    }
+
+    int exit = true;
+    while (exit)
+    {
+        exit = false;
+        for (int i = 0; i < _aperiodicTasks->length(); i++)
+        {
+            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
+            {
+                _aperiodicTasks->at(i)->IncreaseStartTime(
+                            GeneratePoisson(
+                                _aperiodicTasks->at(i)->GetAverageTime()));
+            }
+            qDebug() << _aperiodicTasks->at(i)->GetStartTime();
+            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
+            {
+                exit = true;
+            }
+        }
+    }
+
+    qDebug() << "";
+    for (int i = 0; i < _aperiodicTasks->length(); i++)
+    {
+        qDebug() << _aperiodicTasks->at(i)->GetStartTime();
     }
 
     FillPeriodicTasksList();
@@ -58,17 +85,17 @@ void Handler::DistributePeriodicTasks()
                 if (_frames.at(i) >= _periodicTasks->at(j)->GetLength())
                 {
                     _frames[i] = _frames.at(i) -
-                                 _periodicTasks->at(j)->GetLength();
+                            _periodicTasks->at(j)->GetLength();
                     _frames[i] = round(_frames[i] * 10) / 10;
                     _periodicTasks->at(j)->SetAwake(false);
                     _currentTime += _periodicTasks->at(j)->GetLength();
                     _periodicTasks->at(j)->SetFinishTime(_currentTime);
 
-//for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
-//{
+                    //for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
+                    //{
                     out += QString::number(_periodicTasks->at(j)->GetNumber())
-                                           + " ";
-//}
+                            + " ";
+                    //}
                     Refresh(_periodicTasks->at(j)->GetLength());
                 }
             }
@@ -101,7 +128,7 @@ void Handler::FillAperiodicTasksList()
     {
         _aperiodicTasks->append(
             new AperiodicTask(_lines.at(0).split('\t').at(i).toDouble(),
-                              _lines.at(1).split('\t').at(i).toDouble()));
+            _lines.at(1).split('\t').at(i).toDouble()));
     }
 
     _lines.removeAt(0);
@@ -241,24 +268,26 @@ void Handler::FillFrames()
     }
 }
 
-void Handler::GeneratePoisson(double lyambda)
+uint Handler::GeneratePoisson(double a)
 {
-    qDebug() << lyambda;
-    QString out = "";
-    for (int k = 1; k <= _aperiodicTasks->length(); k++)
+    uint X = 0;
+    double Prod = pow(M_E, -a);
+    double Sum = Prod;
+    double U = my_rand(3);
+    while (U > Sum)
     {
-        out += QString::number(round(((pow(lyambda, k) * pow(M_E, -lyambda)) /
-                                     CalcFactorial(k)) * 100) / 100) + " ";
+        X++;
+        Prod *= a/X;
+        Sum += Prod;
     }
-    qDebug() << out;
+    //qDebug() << X;
+    return X;
 }
 
-int Handler::CalcFactorial(int n)
+double Handler::my_rand(int accuracy)
 {
-    int k = 1;
-    for (int i = 0; i < n; i++)
-    {
-        k *= ( n - i);
-    }
-    return k;
+    double a = 0;
+    qsrand(time(NULL));
+    a = (qrand() % (int)(pow(10, accuracy) + 1)) / pow(10, accuracy);
+    return a;
 }

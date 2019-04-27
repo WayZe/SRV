@@ -14,6 +14,8 @@ private:
 public:
     AperiodicTask(double averageTime, double length);
     double GetAverageTime();
+    void IncreaseStartTime(int value);
+    double GetStartTime();
 };
 
 #endif // APERIODICTASK_H

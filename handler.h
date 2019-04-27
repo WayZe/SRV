@@ -30,12 +30,12 @@ private:
     void FillFrames();
     void Refresh(double time);
     void Print(QString out);
-    int CalcFactorial(int n);
-    void GeneratePoisson(double lyambda);
     void DistributePeriodicTasks();
     void FillAperiodicTasksList();
     void FillPeriodicTasksList();
     int GetNextParam();
+    double my_rand(int accuracy);
+    uint GeneratePoisson(double a);
 
 public:
     explicit Handler(QObject *parent = nullptr);
