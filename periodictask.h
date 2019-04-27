@@ -34,6 +34,8 @@ public:
     void SetStartTime(double startTime);
     void SetInWork(bool inWork);
     bool GetInWork();
+    double GetBeforeFinal();
+    void SetBeforeFinal(double beforeFinal);
 
 signals:
 

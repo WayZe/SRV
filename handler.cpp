@@ -83,8 +83,8 @@ void Handler::DistributePeriodicTasks()
 
         for (int k = 0; k < _frameLength/step; k++)
         {
-            _currentTime += step;
             Refresh(step);
+            _currentTime += step;
             Sort();
 
             bool flag = true;
@@ -145,24 +145,10 @@ void Handler::DistributePeriodicTasks()
             {
                 if (_periodicTasks->at(j)->GetInWork())
                 {
-//                    if (_frames.at(i) >= _periodicTasks->at(j)->GetLength())
-//                    {
-//                        _frames[i] = _frames.at(i) -
-//                                _periodicTasks->at(j)->GetLength();
-//                        _frames[i] = round(_frames[i] * 10) / 10;
-//                        _periodicTasks->at(j)->SetAwake(false);
-//                        _currentTime += _periodicTasks->at(j)->GetLength();
-//                        _periodicTasks->at(j)->SetFinishTime(_currentTime);
+                    _periodicTasks->at(j)->SetBeforeFinal(_periodicTasks->at(j)->GetBeforeFinal() - step);
 
-//                        //for (int k = 0; k < std::round(_tasks->at(j)->GetLength() * 10); k++)
-//                        //{
-//                        out += QString::number(_periodicTasks->at(j)->GetNumber())
-//                                + " ";
-//                        //}
-//                        Refresh(_periodicTasks->at(j)->GetLength());
-//                    }
 
-                    if (_E >_currentTime - _periodicTasks->at(j)->GetStartTime() - _periodicTasks->at(j)->GetPeriod())
+                    if (_periodicTasks->at(j)->GetBeforeFinal() < _E)
                     {
                         _periodicTasks->at(j)->SetAwake(false);
                         _periodicTasks->at(j)->SetInWork(false);
@@ -183,6 +169,7 @@ void Handler::DistributePeriodicTasks()
                 if (k - _frameLength/step + 1 < _E)
                 {
                     _elements->at(i)->append(new Element(emptyTime));
+                    emptyTime = 0;
                 }
             }
         }
@@ -275,6 +262,7 @@ void Handler::Refresh(double time)
                             _periodicTasks->at(k)->GetLimit() +
                             _periodicTasks->at(k)->GetStartTime() -
                             _currentTime);
+                _periodicTasks->at(k)->SetBeforeFinal(_periodicTasks->at(k)->GetLength());
             }
         }
         else

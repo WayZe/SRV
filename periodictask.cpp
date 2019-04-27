@@ -7,6 +7,7 @@ PeriodicTask::PeriodicTask(int number, int period, double length, int limit)
     _length = length;
     _limit = limit;
     _beforeLimit = limit;
+    _beforeFinal = length;
 }
 
 int PeriodicTask::GetNumber()
@@ -77,4 +78,14 @@ void PeriodicTask::SetInWork(bool inWork)
 bool PeriodicTask::GetInWork()
 {
     return _inWork;
+}
+
+double PeriodicTask::GetBeforeFinal()
+{
+    return _beforeFinal;
+}
+
+void PeriodicTask::SetBeforeFinal(double beforeFinal)
+{
+    _beforeFinal = beforeFinal;
 }
