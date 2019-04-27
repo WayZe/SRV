@@ -245,10 +245,10 @@ void Handler::GeneratePoisson(double lyambda)
 {
     qDebug() << lyambda;
     QString out = "";
-    for (int k = 0; k < _aperiodicTasks->length(); k++)
+    for (int k = 1; k <= _aperiodicTasks->length(); k++)
     {
-        out += QString::number(round(1/(pow(lyambda, k) * pow(M_E, -lyambda)) /
-                                     CalcFactorial(k) * 100) / 100) + " ";
+        out += QString::number(round(((pow(lyambda, k) * pow(M_E, -lyambda)) /
+                                     CalcFactorial(k)) * 100) / 100) + " ";
     }
     qDebug() << out;
 }
