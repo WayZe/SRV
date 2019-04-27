@@ -15,3 +15,13 @@ Element::Element(double aperProccessTime, int aperProccessNumber)
     _aperProccessTime = aperProccessTime;
     _aperProccessNumber = aperProccessNumber;
 }
+
+int Element::GetProcessNumber()
+{
+    return  _proccessNumber;
+}
+
+double Element::GetEmptyTime()
+{
+    return _emptyTime;
+}

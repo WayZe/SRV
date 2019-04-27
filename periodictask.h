@@ -15,7 +15,7 @@ private:
     double _finishTime;
     double _beforeLimit;
     bool _isAwake = true;
-    bool _inWork;
+    bool _inWork = false;
     double _beforeFinal;
 
 public:

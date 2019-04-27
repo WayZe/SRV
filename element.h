@@ -16,6 +16,8 @@ public:
     Element(int proccessNumber);
     Element(double emptyTime);
     Element(double aperProccessTime, int aperProccessNumber);
+    int GetProcessNumber();
+    double GetEmptyTime();
 
 signals:
 

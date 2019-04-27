@@ -37,6 +37,7 @@ private:
     int GetNextParam();
     double my_rand(int accuracy);
     uint GeneratePoisson(double a);
+    void PrintElements();
 
 public:
     explicit Handler(QObject *parent = nullptr);

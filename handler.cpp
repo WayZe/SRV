@@ -56,6 +56,8 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     DistributePeriodicTasks();
 
+    PrintElements();
+
     qDebug() << "Data is added to 'output.txt' file.";
 }
 
@@ -81,10 +83,12 @@ void Handler::DistributePeriodicTasks()
 
         for (int k = 0; k < _frameLength/step; k++)
         {
+            _currentTime += step;
             Refresh(step);
             Sort();
 
             bool flag = true;
+            bool isWork = false;
 
             for (int l = 0; l < _periodicTasks->length(); l++)
             {
@@ -97,42 +101,44 @@ void Handler::DistributePeriodicTasks()
             if (flag)
             {
                 emptyTime += step;
-                _currentTime += step;
                 continue;
             }
-            else
-            {
-                bool isWork = false;
 
+            for (int l = 0; l < _periodicTasks->length(); l++)
+            {
+                if (_periodicTasks->at(l)->GetInWork())
+                {
+                    isWork = true;
+                    break;
+                }
+            }
+
+            if (!isWork)
+            {
                 for (int l = 0; l < _periodicTasks->length(); l++)
                 {
-                    if (_periodicTasks->at(l)->GetInWork())
+                    if (_periodicTasks->at(l)->GetAwake())
                     {
-                        isWork = true;
-                        break;
-                    }
-                }
-
-                if (!isWork)
-                {
-                    for (int l = 0; l < _periodicTasks->length(); l++)
-                    {
-                        if (_periodicTasks->at(l)->GetAwake())
+                        if (_frameLength - (k + 1) * step > _periodicTasks->at(l)->GetLength())
                         {
-                            if (_frameLength - (k + 1) * step > _periodicTasks->at(l)->GetLength())
+                            if (emptyTime > 0)
                             {
-                                if (emptyTime > 0)
-                                {
-                                    _elements->at(i)->append(new Element(emptyTime));
-                                    emptyTime = 0;
-                                }
-
-                                _periodicTasks->at(l)->SetInWork(true);
-                                break;
+                                _elements->at(i)->append(new Element(emptyTime));
+                                emptyTime = 0;
                             }
+
+                            _periodicTasks->at(l)->SetInWork(true);
+                            isWork = true;
+                            break;
                         }
                     }
                 }
+            }
+
+            if (!isWork)
+            {
+                emptyTime += step;
+                continue;
             }
 
             for (int j = 0; j < _periodicTasks->length(); j++)
@@ -156,8 +162,7 @@ void Handler::DistributePeriodicTasks()
 //                        Refresh(_periodicTasks->at(j)->GetLength());
 //                    }
 
-                    _currentTime += step;
-                    if (_E >_currentTime - _periodicTasks->at(j)->GetStartTime() + _periodicTasks->at(j)->GetPeriod())
+                    if (_E >_currentTime - _periodicTasks->at(j)->GetStartTime() - _periodicTasks->at(j)->GetPeriod())
                     {
                         _periodicTasks->at(j)->SetAwake(false);
                         _periodicTasks->at(j)->SetInWork(false);
@@ -190,6 +195,32 @@ void Handler::DistributePeriodicTasks()
         }
 
         Print(out);
+    }
+}
+
+void Handler::PrintElements()
+{
+    QString out = "";
+
+    for (int i = 0; i < _elements->length(); i++)
+    {
+        out = "";
+        for (int j = 0; j < _elements->at(i)->length(); j++)
+        {
+            if (_elements->at(i)->at(j)->GetProcessNumber() > 0)
+            {
+                out += QString::number(_elements->at(i)->at(j)->GetProcessNumber()) + " ";
+            }
+            else if (_elements->at(i)->at(j)->GetEmptyTime() > 0)
+            {
+                out += QString::number(_elements->at(i)->at(j)->GetEmptyTime()) + " ";
+            }
+            else
+            {
+                out += "ERROR";
+            }
+        }
+        qDebug() << out;
     }
 }
 
