@@ -326,6 +326,15 @@ void Handler::FillAperiodicTasksList()
     }
 
     AperiodicSort();
+
+    QString out = "";
+    for (int i = 0; i < _aperiodicTasks->length(); i++)
+    {
+        out += "(" + QString::number(_aperiodicTasks->at(i)->GetNumber()) +
+               " " + QString::number(_aperiodicTasks->at(i)->GetStartTime()) +
+               ")";
+    }
+    Print(out + "\n");
 }
 
 void Handler::FillPeriodicTasksList()
