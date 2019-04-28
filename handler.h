@@ -15,6 +15,7 @@ class Handler : public QObject
 private:
     QList<PeriodicTask *> *_periodicTasks = new QList<PeriodicTask *>();
     QList<AperiodicTask *> *_aperiodicTasks = new QList<AperiodicTask *>();
+    QList<AperiodicTask *> *_distinctAperiodicTasks = new QList<AperiodicTask *>();
     QList<QList<Element *> *> *_elements = new QList<QList<Element *> *>();
     QStringList _lines;
     QStringList _lineParts;
@@ -38,6 +39,7 @@ private:
     double my_rand(int accuracy);
     uint GeneratePoisson(double a);
     void PrintElements();
+    void AperiodicSort();
 
 public:
     explicit Handler(QObject *parent = nullptr);

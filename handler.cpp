@@ -18,38 +18,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     _frameLength = GetNextParam();
 
-    //FillAperiodicTasksList();
-
-    for (int i = 0; i < _aperiodicTasks->length(); i++)
-    {
-        GeneratePoisson(_aperiodicTasks->at(i)->GetAverageTime());
-    }
-
-    int exit = true;
-//    while (exit)
-//    {
-//        exit = false;
-//        for (int i = 0; i < _aperiodicTasks->length(); i++)
-//        {
-//            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
-//            {
-//                _aperiodicTasks->at(i)->IncreaseStartTime(
-//                            GeneratePoisson(
-//                                _aperiodicTasks->at(i)->GetAverageTime()));
-//            }
-//            //qDebug() << _aperiodicTasks->at(i)->GetStartTime();
-//            if (_aperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
-//            {
-//                exit = true;
-//            }
-//        }
-//    }
-
-    //qDebug() << "";
-    for (int i = 0; i < _aperiodicTasks->length(); i++)
-    {
-        qDebug() << _aperiodicTasks->at(i)->GetStartTime();
-    }
+    FillAperiodicTasksList();
 
     FillPeriodicTasksList();
 
@@ -229,13 +198,52 @@ void Handler::FillAperiodicTasksList()
 {
     for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
     {
-        _aperiodicTasks->append(
-            new AperiodicTask(_lines.at(0).split('\t').at(i).toDouble(),
+        _distinctAperiodicTasks->append(
+            new AperiodicTask(i+1 ,_lines.at(0).split('\t').at(i).toDouble(),
             _lines.at(1).split('\t').at(i).toDouble()));
     }
 
     _lines.removeAt(0);
     _lines.removeAt(0);
+
+
+    for (int i = 0; i < _distinctAperiodicTasks->length(); i++)
+    {
+        GeneratePoisson(_distinctAperiodicTasks->at(i)->GetAverageTime());
+    }
+
+    int exit = true;
+    while (exit)
+    {
+        exit = false;
+        for (int i = 0; i < _distinctAperiodicTasks->length(); i++)
+        {
+            if (_distinctAperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
+            {
+                _distinctAperiodicTasks->at(i)->IncreaseStartTime(
+                            GeneratePoisson(
+                                _distinctAperiodicTasks->at(i)->GetAverageTime()) +
+                            _distinctAperiodicTasks->at(i)->GetLength());
+                _aperiodicTasks->append(
+                            new AperiodicTask(_distinctAperiodicTasks->at(i)->GetNumber(), _distinctAperiodicTasks->at(i)->GetAverageTime(),
+                                              _distinctAperiodicTasks->at(i)->GetLength()));
+                _aperiodicTasks->last()->IncreaseStartTime(_distinctAperiodicTasks->at(i)->GetStartTime());
+            }
+
+            if (_distinctAperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
+            {
+                exit = true;
+            }
+        }
+    }
+
+    AperiodicSort();
+
+//    for (int i = 0; i < _aperiodicTasks->length(); i++)
+//    {
+//        qDebug() << "    " << _aperiodicTasks->at(i)->GetNumber() << "\t" << _aperiodicTasks->at(i)->GetStartTime();
+//    }
+//    qDebug() << "Amount: " << _aperiodicTasks->length();
 }
 
 void Handler::FillPeriodicTasksList()
@@ -328,6 +336,25 @@ void Handler::Sort()
                 _periodicTasks->swapItemsAt(j, j+1);
 #else
                 _periodicTasks->swap(j, j+1);
+#endif
+            }
+        }
+    }
+}
+
+void Handler::AperiodicSort()
+{
+    // Сортировка массива пузырьком
+    for (int i = 0; i < _aperiodicTasks->length() - 1; i++) {
+        for (int j = 0; j < _aperiodicTasks->length() - i - 1; j++) {
+            if (_aperiodicTasks->at(j)->GetStartTime() >
+                    _aperiodicTasks->at(j + 1)->GetStartTime())
+            {
+                // меняем элементы местами
+#ifdef _WIN32
+                _aperiodicTasks->swapItemsAt(j, j+1);
+#else
+                _aperiodicTasks->swap(j, j+1);
 #endif
             }
         }

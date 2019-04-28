@@ -6,16 +6,19 @@
 class AperiodicTask
 {
 private:
+    int _number = 0;
     double _averageTime = 0;
     double _length = 0;
     double _responseTime = 0;
     double _startTime = 0;
 
 public:
-    AperiodicTask(double averageTime, double length);
+    AperiodicTask(int number, double averageTime, double length);
     double GetAverageTime();
-    void IncreaseStartTime(int value);
+    void IncreaseStartTime(double value);
     double GetStartTime();
+    double GetLength();
+    int GetNumber();
 };
 
 #endif // APERIODICTASK_H
