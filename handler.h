@@ -25,7 +25,7 @@ private:
     int _frameLength = -1;
     double _currentTime = 0;
     const QString inputName = "/tasks.txt";  
-    const QString aperiodicName = "/output/aperiodic.txt";
+    QString aperiodicName = "/output/a.txt";
     QString outputName = "";
     const double _E = 0.0000001;
     const double _step = 0.1;

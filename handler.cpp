@@ -28,6 +28,9 @@ Handler::Handler(QObject *parent) : QObject(parent)
         std::cin >> tmp;
         QDir(QCoreApplication::applicationDirPath()).mkdir("output");
         outputName = "/output/" + QString(tmp) + ".txt";
+        aperiodicName = "/" + aperiodicName.split('/')[1] + "/" +
+                        QString(tmp) + aperiodicName.split('/')[2];
+        qDebug() << aperiodicName;
     }
 
     ReadFile();
