@@ -50,3 +50,13 @@ int Element::GetAperProccessNumber()
 {
     return _aperProccessNumber;
 }
+
+double Element::GetStartTime()
+{
+    return _startTime;
+}
+
+void Element::SetStartTime(double time)
+{
+    _startTime = time;
+}

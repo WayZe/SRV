@@ -46,9 +46,14 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     DistributeAperiodicTasks();
 
+    //CalculateAverageTime();
+
+    PrintAperiodicCorrection();
+
     PrintElements();
 
-    std::cout << ("Data is added to '" + outputName + "' file.").toLocal8Bit().constData();
+    std::cout << ("Data is added to '" +
+                  outputName + "' file.").toLocal8Bit().constData();
 }
 
 int Handler::GetNextParam()
@@ -58,6 +63,36 @@ int Handler::GetNextParam()
     Print(QString::number(param) + "\n");
 
     return param;
+}
+
+void Handler::PrintAperiodicCorrection()
+{
+    QString out = "";
+
+    for (int i = 0; i < _anotherAperiodicTasks->length(); i++)
+    {
+        out = "";
+        out += QString::number(_anotherAperiodicTasks->at(i)->GetNumber()) +
+               " " +
+               QString::number(_anotherAperiodicTasks->at(i)->GetStartTime()) +
+               " " +
+               QString::number(_anotherAperiodicTasks->at(i)->GetLength()) +
+               " " +
+               QString::number(_anotherAperiodicTasks->at(i)->GetBeginTime()) +
+               " " +
+               QString::number(_anotherAperiodicTasks->at(i)->GetBeginTime() -
+                                _anotherAperiodicTasks->at(i)->GetStartTime());
+        Print(out + "\n", aperiodicName);
+    }
+
+    Print("\n", aperiodicName);
+
+    for (int i = 0; i < _distinctAperiodicTasks->length(); i++)
+    {
+        Print(QString::number(i+1) + " " +
+              QString::number(GetResponse(i+1)) + "\n",
+              aperiodicName);
+    }
 }
 
 void Handler::DistributePeriodicTasks()
@@ -73,11 +108,6 @@ void Handler::DistributePeriodicTasks()
         for (int k = 0; k < _frameLength/_step; k++)
         {
             Refresh(_step);
-            if (i == 3 && _elements->at(i)->length() == 6)
-            {
-                int a = 0;
-            }
-            //_currentTime += step;
             Sort();
 
             bool flag = true;
@@ -188,6 +218,29 @@ void Handler::DistributePeriodicTasks()
     }
 }
 
+double Handler::GetResponse(int number)
+{
+    double ret = 0;
+    int count = 0;
+
+    for (int i = 0; i < _anotherAperiodicTasks->length(); i++)
+    {
+        if (number == _anotherAperiodicTasks->at(i)->GetNumber())
+        {
+            ret += _anotherAperiodicTasks->at(i)->GetBeginTime() -
+                    _anotherAperiodicTasks->at(i)->GetStartTime();
+            count++;
+        }
+    }
+
+    if (count  == 0)
+    {
+        return -1;
+    }
+
+    return ret/count;
+}
+
 void Handler::DistributeAperiodicTasks()
 {
     for (int i = 0; i < _elements->length(); i++)
@@ -202,12 +255,24 @@ void Handler::DistributeAperiodicTasks()
                     _elements->at(i)->at(j)->SetAperProccessNumber(
                                 _aperiodicTasks->at(0)->GetNumber());
 
+                    if (_aperiodicTasks->at(0)->GetBeginTime() == 0)
+                    {
+                        _aperiodicTasks->at(0)->SetBeginTime(
+                                    (i + 1) * 2 + GetCurrentTime(i, j));
+                    }
+
                     if (abs(_elements->at(i)->at(j)->GetEmptyTime() -
                             _aperiodicTasks->at(0)->GetBeforeFinish()) < _E)
                     {
                         _elements->at(i)->at(j)->SetAperProccessTime(
                                     _elements->at(i)->at(j)->GetEmptyTime());
                         _elements->at(i)->at(j)->SetEmptyTime(-1);
+                        _anotherAperiodicTasks->append(
+                                    new AperiodicTask(
+                                        _aperiodicTasks->at(0)->GetStartTime(),
+                                        _aperiodicTasks->at(0)->GetBeginTime(),
+                                        _aperiodicTasks->at(0)->GetNumber(),
+                                        _aperiodicTasks->at(0)->GetLength()));
                         _aperiodicTasks->removeAt(0);
                         continue;
                     }
@@ -234,6 +299,12 @@ void Handler::DistributeAperiodicTasks()
                                     _elements->at(i)->at(j)->GetEmptyTime() -
                                     _aperiodicTasks->at(0)->GetBeforeFinish()));
                         _elements->at(i)->at(j)->SetEmptyTime(-1);
+                        _anotherAperiodicTasks->append(
+                                    new AperiodicTask(
+                                        _aperiodicTasks->at(0)->GetStartTime(),
+                                        _aperiodicTasks->at(0)->GetBeginTime(),
+                                        _aperiodicTasks->at(0)->GetNumber(),
+                                        _aperiodicTasks->at(0)->GetLength()));
                         _aperiodicTasks->removeAt(0);
                         continue;
                     }
@@ -241,6 +312,37 @@ void Handler::DistributeAperiodicTasks()
             }
         }
     }
+}
+
+double Handler::GetCurrentTime(int i, int j)
+{
+    double currentTime = 0;
+    for (int k = 0; k < j; k++)
+    {
+        if (_elements->at(i)->at(k)->GetEmptyTime() != -1)
+        {
+            currentTime += _elements->at(i)->at(k)->GetEmptyTime();
+        }
+
+        if (_elements->at(i)->at(k)->GetAperProccessTime() != -1)
+        {
+            currentTime += _elements->at(i)->at(k)->GetAperProccessTime();
+        }
+
+        if (_elements->at(i)->at(k)->GetProcessNumber() != -1)
+        {
+            for (int l = 0; l < _periodicTasks->length(); l++)
+            {
+                if (_elements->at(i)->at(k)->GetProcessNumber() ==
+                        _periodicTasks->at(l)->GetNumber())
+                {
+                    currentTime += _periodicTasks->at(l)->GetLength();
+                    break;
+                }
+            }
+        }
+    }
+    return currentTime;
 }
 
 void Handler::PrintElements()
@@ -335,6 +437,28 @@ void Handler::FillAperiodicTasksList()
                ")";
     }
     Print(out + "\n");
+
+    qDebug() << _aperiodicTasks->length();
+}
+
+double Handler::CalculateAverageTime()
+{
+    double count = 0;
+    double sum = 0;
+    for (int i = 0; i < _elements->length(); i++)
+    {
+        for (int j = 0; j < _elements->at(i)->length(); j++)
+        {
+            if (_elements->at(i)->at(j)->GetStartTime() > 0)
+            {
+                count++;
+                sum += _elements->at(i)->at(j)->GetStartTime() -
+                        _elements->at(i)->at(j)->GetAperProccessTime();
+            }
+        }
+    }
+    qDebug() << sum/count << sum << count;
+    return sum/count;
 }
 
 void Handler::FillPeriodicTasksList()
@@ -390,6 +514,7 @@ void Handler::ReadFile()
 {
     QFile file(QCoreApplication::applicationDirPath() + inputName);
     QFile output(QCoreApplication::applicationDirPath() + outputName);
+    QFile aperiodic(QCoreApplication::applicationDirPath() + aperiodicName);
     QString allText = "";
 
     if (file.open(QIODevice::ReadOnly))
@@ -407,6 +532,12 @@ void Handler::ReadFile()
     {
         output.write("");
         output.close();
+    }
+
+    if (aperiodic.open(QIODevice::WriteOnly))
+    {
+        aperiodic.write("");
+        aperiodic.close();
     }
 
     _lines = allText.split('\n');
@@ -480,6 +611,18 @@ void Handler::Print(QString out)
         file.close();
     }
 }
+
+void Handler::Print(QString out, QString path)
+{
+    QFile file(QCoreApplication::applicationDirPath() + path);
+
+    if (file.open(QIODevice::Append))
+    {
+        file.write(out.toLocal8Bit());
+        file.close();
+    }
+}
+
 
 uint Handler::GeneratePoisson(double a)
 {

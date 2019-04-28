@@ -12,8 +12,12 @@ private:
     double _responseTime = 0;
     double _startTime = 0;
     double _beforeFinish;
+    // Для вычисления времени отклика
+    double _beginTime = 0;
+    double _endTime = 0;
 
 public:
+    AperiodicTask(double startTime, double beginTime, int number, double length);
     AperiodicTask(int number, double averageTime, double length);
     double GetAverageTime();
     void IncreaseStartTime(double value);
@@ -22,6 +26,10 @@ public:
     int GetNumber();
     double GetBeforeFinish();
     void SetBeforeFinish(double beforeFinish);
+    double GetBeginTime();
+    void SetBeginTime(double time);
+    double GetEndTime();
+    void SetEndTime(double time);
 };
 
 #endif // APERIODICTASK_H

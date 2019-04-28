@@ -11,6 +11,7 @@ private:
     double _emptyTime = -1;
     double _aperProccessTime = -1;
     int _aperProccessNumber =  -1;
+    double _startTime = -1;
 
 public:
     Element(int proccessNumber);
@@ -23,6 +24,8 @@ public:
     void SetAperProccessNumber(int number);
     double GetAperProccessTime();
     int GetAperProccessNumber();
+    double GetStartTime();
+    void SetStartTime(double time);
 
 signals:
 

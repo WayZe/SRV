@@ -1,11 +1,19 @@
 #include "aperiodictask.h"
 
-AperiodicTask::AperiodicTask(int number, double averageTime, double length)
+AperiodicTask::AperiodicTask(double startTime, double beginTime, int number, double length)
+{
+    _startTime = startTime;
+    _beginTime = beginTime;
+    _number = number;
+    _length = length;
+}
+
+AperiodicTask::AperiodicTask(int number, double averageTime, double beginTime)
 {
     _number = number;
     _averageTime = averageTime;
-    _length = length;
-    _beforeFinish = length;
+    _length = beginTime;
+    _beforeFinish = beginTime;
 }
 
 double AperiodicTask::GetAverageTime()
@@ -41,4 +49,24 @@ double AperiodicTask::GetBeforeFinish()
 void AperiodicTask::SetBeforeFinish(double beforeFinish)
 {
     _beforeFinish = beforeFinish;
+}
+
+double AperiodicTask::GetBeginTime()
+{
+    return _beginTime;
+}
+
+void AperiodicTask::SetBeginTime(double time)
+{
+    _beginTime = time;
+}
+
+double AperiodicTask::GetEndTime()
+{
+    return _endTime;
+}
+
+void AperiodicTask::SetEndTime(double time)
+{
+    _endTime = time;
 }
