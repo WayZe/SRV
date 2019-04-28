@@ -194,7 +194,7 @@ void Handler::DistributePeriodicTasks()
             out += "\n";
         }
 
-        Print(out);
+        //Print(out);
     }
 }
 
@@ -221,6 +221,7 @@ void Handler::PrintElements()
             }
         }
         qDebug() << out;
+        Print(out + "\n");
     }
 }
 
