@@ -23,7 +23,7 @@ private:
     int _frameLength = -1;
     double _currentTime = 0;
     const QString inputName = "/tasks.txt";
-    const QString outputName = "/output.txt";
+    QString outputName = "";
     const double _E = 0.0000001;
     const double _step = 0.1;
     int _seed = -1;

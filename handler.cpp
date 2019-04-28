@@ -7,6 +7,7 @@
 #include <QCoreApplication>
 #include <ctime>
 #include <iostream>
+#include <QDir>
 
 #include <periodictask.h>
 #include <aperiodictask.h>
@@ -17,6 +18,16 @@ Handler::Handler(QObject *parent) : QObject(parent)
     {
         std::cout << "Enter seed: ";
         std::cin >> _seed;
+    }
+
+    char tmp[3000];
+
+    while (outputName == "")
+    {
+        std::cout << "Enter output file name: ";
+        std::cin >> tmp;
+        QDir(QCoreApplication::applicationDirPath()).mkdir("output");
+        outputName = "/output/" + QString(tmp) + ".txt";
     }
 
     ReadFile();
@@ -37,7 +48,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     PrintElements();
 
-    qDebug() << "Data is added to 'output.txt' file.";
+    std::cout << ("Data is added to '" + outputName + "' file.").toLocal8Bit().constData();
 }
 
 int Handler::GetNextParam()
@@ -263,7 +274,6 @@ void Handler::PrintElements()
             }
         }
         out.replace(out.length() - 1, 1, ")");
-        qDebug() << out;
         Print(out + "\n");
     }
 }
