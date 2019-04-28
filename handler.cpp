@@ -18,7 +18,7 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     _frameLength = GetNextParam();
 
-    FillAperiodicTasksList();
+    //FillAperiodicTasksList();
 
     for (int i = 0; i < _aperiodicTasks->length(); i++)
     {
@@ -84,7 +84,11 @@ void Handler::DistributePeriodicTasks()
         for (int k = 0; k < _frameLength/step; k++)
         {
             Refresh(step);
-            _currentTime += step;
+            if (i == 3 && _elements->at(i)->length() == 6)
+            {
+                int a = 0;
+            }
+            //_currentTime += step;
             Sort();
 
             bool flag = true;
@@ -101,6 +105,13 @@ void Handler::DistributePeriodicTasks()
             if (flag)
             {
                 emptyTime += step;
+                if (_frameLength/step - (k + 1) < _E)
+                {
+                    _elements->at(i)->append(new Element(emptyTime));
+                    emptyTime = 0;
+                }
+
+                _currentTime += step;
                 continue;
             }
 
@@ -119,7 +130,8 @@ void Handler::DistributePeriodicTasks()
                 {
                     if (_periodicTasks->at(l)->GetAwake())
                     {
-                        if (_frameLength - (k + 1) * step > _periodicTasks->at(l)->GetLength())
+                        if (_E + _frameLength - (k) * step >
+                                _periodicTasks->at(l)->GetLength())
                         {
                             if (emptyTime > 0)
                             {
@@ -138,6 +150,12 @@ void Handler::DistributePeriodicTasks()
             if (!isWork)
             {
                 emptyTime += step;
+                _currentTime += step;
+                if (_frameLength/step - (k+1) < _E)
+                {
+                    _elements->at(i)->append(new Element(emptyTime));
+                    emptyTime = 0;
+                }
                 continue;
             }
 
@@ -145,15 +163,19 @@ void Handler::DistributePeriodicTasks()
             {
                 if (_periodicTasks->at(j)->GetInWork())
                 {
-                    _periodicTasks->at(j)->SetBeforeFinal(_periodicTasks->at(j)->GetBeforeFinal() - step);
+                    _periodicTasks->at(j)->SetBeforeFinal(
+                                _periodicTasks->at(j)->GetBeforeFinal() -
+                                step);
 
-
+                    _currentTime += step;
                     if (_periodicTasks->at(j)->GetBeforeFinal() < _E)
                     {
                         _periodicTasks->at(j)->SetAwake(false);
                         _periodicTasks->at(j)->SetInWork(false);
                         _periodicTasks->at(j)->SetFinishTime(_currentTime);
-                        _elements->at(i)->append(new Element(_periodicTasks->at(j)->GetNumber()));
+                        _elements->at(i)->append(
+                                    new Element(
+                                        _periodicTasks->at(j)->GetNumber()));
                     }
                 }
 
@@ -161,15 +183,6 @@ void Handler::DistributePeriodicTasks()
                 {
                     Print("WARNING " +
                           QString::number(_periodicTasks->at(j)->GetNumber()));
-                }
-            }
-
-            if (emptyTime > 0)
-            {
-                if (k - _frameLength/step + 1 < _E)
-                {
-                    _elements->at(i)->append(new Element(emptyTime));
-                    emptyTime = 0;
                 }
             }
         }
@@ -252,7 +265,7 @@ void Handler::Refresh(double time)
         {
             if(_periodicTasks->at(k)->GetStartTime() +
                     _periodicTasks->at(k)->GetPeriod() <=
-                    _currentTime)
+                    _currentTime + _E)
             {
                 _periodicTasks->at(k)->SetAwake(true);
                 _periodicTasks->at(k)->SetStartTime(
@@ -262,7 +275,8 @@ void Handler::Refresh(double time)
                             _periodicTasks->at(k)->GetLimit() +
                             _periodicTasks->at(k)->GetStartTime() -
                             _currentTime);
-                _periodicTasks->at(k)->SetBeforeFinal(_periodicTasks->at(k)->GetLength());
+                _periodicTasks->at(k)->SetBeforeFinal(
+                            _periodicTasks->at(k)->GetLength());
             }
         }
         else
