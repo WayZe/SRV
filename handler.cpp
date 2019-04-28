@@ -6,12 +6,19 @@
 #include <cmath> // для round
 #include <QCoreApplication>
 #include <ctime>
+#include <iostream>
 
 #include <periodictask.h>
 #include <aperiodictask.h>
 
 Handler::Handler(QObject *parent) : QObject(parent)
-{
+{   
+    while (_seed < 0)
+    {
+        std::cout << "Enter seed: ";
+        std::cin >> _seed;
+    }
+
     ReadFile();
 
     _hyperperiod = GetNextParam();
@@ -452,14 +459,13 @@ uint Handler::GeneratePoisson(double a)
         Prod *= a/X;
         Sum += Prod;
     }
-    //qDebug() << X;
     return X;
 }
 
 double Handler::my_rand(int accuracy)
 {
     double a = 0;
-    qsrand(1);
+    qsrand(_seed);
     a = (qrand() % (int)(pow(10, accuracy) + 1)) / pow(10, accuracy);
     return a;
 }
