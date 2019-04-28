@@ -22,8 +22,9 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     FillPeriodicTasksList();
 
-
     DistributePeriodicTasks();
+
+    DistributeAperiodicTasks();
 
     PrintElements();
 
@@ -41,7 +42,6 @@ int Handler::GetNextParam()
 
 void Handler::DistributePeriodicTasks()
 {
-    double step = 0.1;
     double emptyTime = 0;
     QString out = "";
 
@@ -50,9 +50,9 @@ void Handler::DistributePeriodicTasks()
         out = "(";
         _elements->append(new QList<Element *>());
 
-        for (int k = 0; k < _frameLength/step; k++)
+        for (int k = 0; k < _frameLength/_step; k++)
         {
-            Refresh(step);
+            Refresh(_step);
             if (i == 3 && _elements->at(i)->length() == 6)
             {
                 int a = 0;
@@ -73,14 +73,14 @@ void Handler::DistributePeriodicTasks()
 
             if (flag)
             {
-                emptyTime += step;
-                if (_frameLength/step - (k + 1) < _E)
+                emptyTime += _step;
+                if (_frameLength/_step - (k + 1) < _E)
                 {
                     _elements->at(i)->append(new Element(emptyTime));
                     emptyTime = 0;
                 }
 
-                _currentTime += step;
+                _currentTime += _step;
                 continue;
             }
 
@@ -99,7 +99,7 @@ void Handler::DistributePeriodicTasks()
                 {
                     if (_periodicTasks->at(l)->GetAwake())
                     {
-                        if (_E + _frameLength - (k) * step >
+                        if (_E + _frameLength - (k) * _step >
                                 _periodicTasks->at(l)->GetLength())
                         {
                             if (emptyTime > 0)
@@ -118,9 +118,9 @@ void Handler::DistributePeriodicTasks()
 
             if (!isWork)
             {
-                emptyTime += step;
-                _currentTime += step;
-                if (_frameLength/step - (k+1) < _E)
+                emptyTime += _step;
+                _currentTime += _step;
+                if (_frameLength/_step - (k+1) < _E)
                 {
                     _elements->at(i)->append(new Element(emptyTime));
                     emptyTime = 0;
@@ -134,9 +134,9 @@ void Handler::DistributePeriodicTasks()
                 {
                     _periodicTasks->at(j)->SetBeforeFinal(
                                 _periodicTasks->at(j)->GetBeforeFinal() -
-                                step);
+                                _step);
 
-                    _currentTime += step;
+                    _currentTime += _step;
                     if (_periodicTasks->at(j)->GetBeforeFinal() < _E)
                     {
                         _periodicTasks->at(j)->SetAwake(false);
@@ -167,6 +167,54 @@ void Handler::DistributePeriodicTasks()
     }
 }
 
+void Handler::DistributeAperiodicTasks()
+{
+    for (int i = 0; i < _elements->length(); i++)
+    {
+        for (int j = 0; j < _elements->at(i)->length(); j++)
+        {
+            if (i == 12 && j == 10)
+            {
+                int a = 0;
+            }
+
+            if (_aperiodicTasks->at(0)->GetStartTime() <= (i + 1) *_frameLength + (j + 1) * _step)
+            {
+                if (_elements->at(i)->at(j)->GetEmptyTime() != -1)
+                {
+                    _elements->at(i)->at(j)->SetAperProccessNumber(_aperiodicTasks->at(0)->GetNumber());
+
+                    if (abs(_elements->at(i)->at(j)->GetEmptyTime() - _aperiodicTasks->at(0)->GetBeforeFinish()) < _E)
+                    {
+                        _elements->at(i)->at(j)->SetAperProccessTime(_elements->at(i)->at(j)->GetEmptyTime());
+                        _elements->at(i)->at(j)->SetEmptyTime(-1);
+                        _aperiodicTasks->removeAt(0);
+                        continue;
+                    }
+
+                    if (_elements->at(i)->at(j)->GetEmptyTime() < _aperiodicTasks->at(0)->GetBeforeFinish())
+                    {
+                         _aperiodicTasks->at(0)->SetBeforeFinish(_aperiodicTasks->at(0)->GetBeforeFinish() -
+                                                                 _elements->at(i)->at(j)->GetEmptyTime());
+                        _elements->at(i)->at(j)->SetAperProccessTime(_elements->at(i)->at(j)->GetEmptyTime());
+                        _elements->at(i)->at(j)->SetEmptyTime(-1);
+                        continue;
+                    }
+
+                    if (_elements->at(i)->at(j)->GetEmptyTime() > _aperiodicTasks->at(0)->GetBeforeFinish())
+                    {
+                        _elements->at(i)->at(j)->SetAperProccessTime(_aperiodicTasks->at(0)->GetBeforeFinish());
+                        _elements->at(i)->insert(j + 1, new Element(_elements->at(i)->at(j)->GetEmptyTime() - _aperiodicTasks->at(0)->GetBeforeFinish()));
+                        _elements->at(i)->at(j)->SetEmptyTime(-1);
+                        _aperiodicTasks->removeAt(0);
+                        continue;
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Handler::PrintElements()
 {
     QString out = "";
@@ -186,7 +234,7 @@ void Handler::PrintElements()
             }
             else
             {
-                out += "ERROR";
+                out += "(" + QString::number(_elements->at(i)->at(j)->GetAperProccessNumber()) + ";" + QString::number(_elements->at(i)->at(j)->GetAperProccessTime()) + ") ";
             }
         }
         qDebug() << out;
@@ -199,7 +247,7 @@ void Handler::FillAperiodicTasksList()
     for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
     {
         _distinctAperiodicTasks->append(
-            new AperiodicTask(i+1 ,_lines.at(0).split('\t').at(i).toDouble(),
+            new AperiodicTask(i + 1, _lines.at(0).split('\t').at(i).toDouble(),
             _lines.at(1).split('\t').at(i).toDouble()));
     }
 
@@ -411,7 +459,7 @@ uint Handler::GeneratePoisson(double a)
 double Handler::my_rand(int accuracy)
 {
     double a = 0;
-    qsrand(time(NULL));
+    qsrand(1);
     a = (qrand() % (int)(pow(10, accuracy) + 1)) / pow(10, accuracy);
     return a;
 }

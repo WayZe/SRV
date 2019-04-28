@@ -5,6 +5,7 @@ AperiodicTask::AperiodicTask(int number, double averageTime, double length)
     _number = number;
     _averageTime = averageTime;
     _length = length;
+    _beforeFinish = length;
 }
 
 double AperiodicTask::GetAverageTime()
@@ -30,4 +31,14 @@ double AperiodicTask::GetLength()
 int AperiodicTask::GetNumber()
 {
     return _number;
+}
+
+double AperiodicTask::GetBeforeFinish()
+{
+    return _beforeFinish;
+}
+
+void AperiodicTask::SetBeforeFinish(double beforeFinish)
+{
+    _beforeFinish = beforeFinish;
 }

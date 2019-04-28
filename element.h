@@ -18,6 +18,11 @@ public:
     Element(double aperProccessTime, int aperProccessNumber);
     int GetProcessNumber();
     double GetEmptyTime();
+    void SetEmptyTime(double time);
+    void SetAperProccessTime(double time);
+    void SetAperProccessNumber(int number);
+    double GetAperProccessTime();
+    int GetAperProccessNumber();
 
 signals:
 

@@ -25,6 +25,7 @@ private:
     const QString inputName = "/tasks.txt";
     const QString outputName = "/output.txt";
     const double _E = 0.0000001;
+    const double _step = 0.1;
 
 private:
     void ReadFile();
@@ -33,6 +34,7 @@ private:
     void Refresh(double time);
     void Print(QString out);
     void DistributePeriodicTasks();
+    void DistributeAperiodicTasks();
     void FillAperiodicTasksList();
     void FillPeriodicTasksList();
     int GetNextParam();

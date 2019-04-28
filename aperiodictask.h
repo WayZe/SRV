@@ -11,6 +11,7 @@ private:
     double _length = 0;
     double _responseTime = 0;
     double _startTime = 0;
+    double _beforeFinish;
 
 public:
     AperiodicTask(int number, double averageTime, double length);
@@ -19,6 +20,8 @@ public:
     double GetStartTime();
     double GetLength();
     int GetNumber();
+    double GetBeforeFinish();
+    void SetBeforeFinish(double beforeFinish);
 };
 
 #endif // APERIODICTASK_H

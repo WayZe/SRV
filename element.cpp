@@ -25,3 +25,28 @@ double Element::GetEmptyTime()
 {
     return _emptyTime;
 }
+
+void Element::SetEmptyTime(double time)
+{
+    _emptyTime = time;
+}
+
+void Element::SetAperProccessTime(double time)
+{
+    _aperProccessTime = time;
+}
+
+void Element::SetAperProccessNumber(int number)
+{
+    _aperProccessNumber = number;
+}
+
+double Element::GetAperProccessTime()
+{
+    return  _aperProccessTime;
+}
+
+int Element::GetAperProccessNumber()
+{
+    return _aperProccessNumber;
+}
