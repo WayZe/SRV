@@ -25,6 +25,8 @@ Handler::Handler(QObject *parent) : QObject(parent)
 
     _frameLength = GetNextParam();
 
+    Print("2\n");
+
     FillAperiodicTasksList();
 
     FillPeriodicTasksList();
@@ -111,7 +113,8 @@ void Handler::DistributePeriodicTasks()
                         {
                             if (emptyTime > 0)
                             {
-                                _elements->at(i)->append(new Element(emptyTime));
+                                _elements->at(i)->append(
+                                            new Element(emptyTime));
                                 emptyTime = 0;
                             }
 
@@ -180,38 +183,45 @@ void Handler::DistributeAperiodicTasks()
     {
         for (int j = 0; j < _elements->at(i)->length(); j++)
         {
-            if (i == 12 && j == 10)
-            {
-                int a = 0;
-            }
-
-            if (_aperiodicTasks->at(0)->GetStartTime() <= (i + 1) *_frameLength + (j + 1) * _step)
+            if (_aperiodicTasks->at(0)->GetStartTime() <=
+                    (i + 1) *_frameLength + (j + 1) * _step)
             {
                 if (_elements->at(i)->at(j)->GetEmptyTime() != -1)
                 {
-                    _elements->at(i)->at(j)->SetAperProccessNumber(_aperiodicTasks->at(0)->GetNumber());
+                    _elements->at(i)->at(j)->SetAperProccessNumber(
+                                _aperiodicTasks->at(0)->GetNumber());
 
-                    if (abs(_elements->at(i)->at(j)->GetEmptyTime() - _aperiodicTasks->at(0)->GetBeforeFinish()) < _E)
+                    if (abs(_elements->at(i)->at(j)->GetEmptyTime() -
+                            _aperiodicTasks->at(0)->GetBeforeFinish()) < _E)
                     {
-                        _elements->at(i)->at(j)->SetAperProccessTime(_elements->at(i)->at(j)->GetEmptyTime());
+                        _elements->at(i)->at(j)->SetAperProccessTime(
+                                    _elements->at(i)->at(j)->GetEmptyTime());
                         _elements->at(i)->at(j)->SetEmptyTime(-1);
                         _aperiodicTasks->removeAt(0);
                         continue;
                     }
 
-                    if (_elements->at(i)->at(j)->GetEmptyTime() < _aperiodicTasks->at(0)->GetBeforeFinish())
+                    if (_elements->at(i)->at(j)->GetEmptyTime() <
+                            _aperiodicTasks->at(0)->GetBeforeFinish())
                     {
-                         _aperiodicTasks->at(0)->SetBeforeFinish(_aperiodicTasks->at(0)->GetBeforeFinish() -
-                                                                 _elements->at(i)->at(j)->GetEmptyTime());
-                        _elements->at(i)->at(j)->SetAperProccessTime(_elements->at(i)->at(j)->GetEmptyTime());
+                         _aperiodicTasks->at(0)->SetBeforeFinish(
+                                     _aperiodicTasks->at(0)->GetBeforeFinish() -
+                                     _elements->at(i)->at(j)->GetEmptyTime());
+                        _elements->at(i)->at(j)->SetAperProccessTime(
+                                    _elements->at(i)->at(j)->GetEmptyTime());
                         _elements->at(i)->at(j)->SetEmptyTime(-1);
                         continue;
                     }
 
-                    if (_elements->at(i)->at(j)->GetEmptyTime() > _aperiodicTasks->at(0)->GetBeforeFinish())
+                    if (_elements->at(i)->at(j)->GetEmptyTime() >
+                            _aperiodicTasks->at(0)->GetBeforeFinish())
                     {
-                        _elements->at(i)->at(j)->SetAperProccessTime(_aperiodicTasks->at(0)->GetBeforeFinish());
-                        _elements->at(i)->insert(j + 1, new Element(_elements->at(i)->at(j)->GetEmptyTime() - _aperiodicTasks->at(0)->GetBeforeFinish()));
+                        _elements->at(i)->at(j)->SetAperProccessTime(
+                                    _aperiodicTasks->at(0)->GetBeforeFinish());
+                        _elements->at(i)->insert(j + 1,
+                                new Element(
+                                    _elements->at(i)->at(j)->GetEmptyTime() -
+                                    _aperiodicTasks->at(0)->GetBeforeFinish()));
                         _elements->at(i)->at(j)->SetEmptyTime(-1);
                         _aperiodicTasks->removeAt(0);
                         continue;
@@ -228,22 +238,31 @@ void Handler::PrintElements()
 
     for (int i = 0; i < _elements->length(); i++)
     {
-        out = "";
+        out = "(";
         for (int j = 0; j < _elements->at(i)->length(); j++)
         {
             if (_elements->at(i)->at(j)->GetProcessNumber() > 0)
             {
-                out += QString::number(_elements->at(i)->at(j)->GetProcessNumber()) + " ";
+                out += "(-1 " + QString::number(
+                            _elements->at(i)->at(j)->GetProcessNumber()) + ") ";
             }
             else if (_elements->at(i)->at(j)->GetEmptyTime() > 0)
             {
-                out += QString::number(_elements->at(i)->at(j)->GetEmptyTime()) + " ";
+                out += "(-2 " + QString::number(
+                            _elements->at(i)->at(j)->GetEmptyTime()) + ") ";
             }
             else
             {
-                out += "(" + QString::number(_elements->at(i)->at(j)->GetAperProccessNumber()) + ";" + QString::number(_elements->at(i)->at(j)->GetAperProccessTime()) + ") ";
+                out += "(-3 " +
+                        QString::number(
+                            _elements->at(i)->at(j)->GetAperProccessNumber()) +
+                        " " +
+                        QString::number(
+                            _elements->at(i)->at(j)->GetAperProccessTime()) +
+                        ") ";
             }
         }
+        out.replace(out.length() - 1, 1, ")");
         qDebug() << out;
         Print(out + "\n");
     }
@@ -254,8 +273,9 @@ void Handler::FillAperiodicTasksList()
     for (int i = 0; i < _lines.at(0).split('\t').length(); i++)
     {
         _distinctAperiodicTasks->append(
-            new AperiodicTask(i + 1, _lines.at(0).split('\t').at(i).toDouble(),
-            _lines.at(1).split('\t').at(i).toDouble()));
+            new AperiodicTask(i + 1,
+                              _lines.at(0).split('\t').at(i).toDouble(),
+                              _lines.at(1).split('\t').at(i).toDouble()));
     }
 
     _lines.removeAt(0);
@@ -276,13 +296,16 @@ void Handler::FillAperiodicTasksList()
             if (_distinctAperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
             {
                 _distinctAperiodicTasks->at(i)->IncreaseStartTime(
-                            GeneratePoisson(
-                                _distinctAperiodicTasks->at(i)->GetAverageTime()) +
+                        GeneratePoisson(
+                            _distinctAperiodicTasks->at(i)->GetAverageTime()) +
                             _distinctAperiodicTasks->at(i)->GetLength());
                 _aperiodicTasks->append(
-                            new AperiodicTask(_distinctAperiodicTasks->at(i)->GetNumber(), _distinctAperiodicTasks->at(i)->GetAverageTime(),
-                                              _distinctAperiodicTasks->at(i)->GetLength()));
-                _aperiodicTasks->last()->IncreaseStartTime(_distinctAperiodicTasks->at(i)->GetStartTime());
+                        new AperiodicTask(
+                            _distinctAperiodicTasks->at(i)->GetNumber(),
+                            _distinctAperiodicTasks->at(i)->GetAverageTime(),
+                            _distinctAperiodicTasks->at(i)->GetLength()));
+                _aperiodicTasks->last()->IncreaseStartTime(
+                            _distinctAperiodicTasks->at(i)->GetStartTime());
             }
 
             if (_distinctAperiodicTasks->at(i)->GetStartTime() < _hyperperiod)
@@ -293,12 +316,6 @@ void Handler::FillAperiodicTasksList()
     }
 
     AperiodicSort();
-
-//    for (int i = 0; i < _aperiodicTasks->length(); i++)
-//    {
-//        qDebug() << "    " << _aperiodicTasks->at(i)->GetNumber() << "\t" << _aperiodicTasks->at(i)->GetStartTime();
-//    }
-//    qDebug() << "Amount: " << _aperiodicTasks->length();
 }
 
 void Handler::FillPeriodicTasksList()
@@ -315,8 +332,6 @@ void Handler::FillPeriodicTasksList()
         out += line.split('\t').at(2) + " ";
     }
     out.replace(out.lastIndexOf(' '), 1, ")");
-
-    Print(QString::number(_periodicTasks->length()) + "\n");
 
     Print(out + "\n");
 }
