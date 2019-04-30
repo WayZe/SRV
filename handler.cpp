@@ -251,17 +251,36 @@ void Handler::DistributeAperiodicTasks()
         for (int j = 0; j < _elements->at(i)->length(); j++)
         {
             if (_aperiodicTasks->at(0)->GetStartTime() <=
-                    (i + 1) *_frameLength + (j + 1) * _step)
+                    (i + 1) *_frameLength + GetCurrentTime(i, j))
             {
                 if (_elements->at(i)->at(j)->GetEmptyTime() != -1)
                 {
+                    //Фикс 30 апреля добавление условия на появление
+                    //ап процесса посередине пустого времени
+                    if(_aperiodicTasks->at(0)->GetStartTime() > (i + 1) *
+                            _frameLength + GetCurrentTime(i, j - 1) + _E )
+                    {
+                        _elements->at(i)->insert(j,
+                                new Element(
+                                   _aperiodicTasks->at(0)->GetStartTime() -
+                                   ((i + 1) * _frameLength
+                                    + GetCurrentTime(i, j -1 ))
+                                    ));
+                                _elements->at(i)->at(j + 1)->SetEmptyTime(
+                                   _elements->at(i)->at(j + 1)->GetEmptyTime() -
+                                   _elements->at(i)->at(j)->GetEmptyTime()
+                                            );
+                                continue;
+
+                    }
                     _elements->at(i)->at(j)->SetAperProccessNumber(
                                 _aperiodicTasks->at(0)->GetNumber());
 
                     if (_aperiodicTasks->at(0)->GetBeginTime() == 0)
                     {
                         _aperiodicTasks->at(0)->SetBeginTime(
-                                    (i + 1) * 2 + GetCurrentTime(i, j));
+                                    (i + 1) * _frameLength +
+                                    GetCurrentTime(i, j));
                     }
 
                     if (abs(_elements->at(i)->at(j)->GetEmptyTime() -
